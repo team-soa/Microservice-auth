@@ -1,43 +1,125 @@
 var express = require('express');
 var router = express.Router();
+var database = require('../public/javascripts/DataBaseInterface');
+var {sendDatatoQueue} = require('../public/javascripts/RabbitInterface')
+var {isUsernameValid} = require('../public/javascripts/UsernameValidator')
 var cors = require('cors')
-var {app, corsOptions} = require('../app');
+var app = require('../app');
+const keycloak = require('../config/keycloak.js').getKeycloak();
 
+
+/**
+ * @swagger
+ *    components:
+ *        schemas:
+ *           User:
+ *             type: object
+ *             properties:
+ *               _id:
+ *                   type: string
+ *                   description: El ID del objeto.
+ *                   example: 613b14eadd11665197679c14
+ *               username:
+ *                   type: string
+ *                   description: El nombre de usuario.
+ *                   example: Despacito
+ *               key:
+ *                   type: string
+ *                   description: La clave para el storage personal del usuario
+*/
 
 const qs = require('qs')
 const https = require('http');
 
-router.post('/login',  cors(corsOptions), async function(req, res){
-  try{
-    let data =  {
-        grant_type:"password",
-        client_id:"karaoke-client",
-        client_secret:"ba2939cf-e64c-4706-b578-349675e249b4",
-        username:req.body.username,
-        password:req.body.password
-    }
-    data=qs.stringify(data)
+ /**
+ * @swagger
+ * /users/login:
+ *   post:
+ *     tags: [Users]
+ *     summary: Endpoint para loggearse.
+ *     description: Endpoint para loggearse.
+ *     parameters:
+ *       - in: query
+ *         name: username
+ *         required: true
+ *         description: Indica el username.
+ *         example: user1
+ *         schema:
+ *           type: string  
+ *       - in: query
+ *         name: password
+ *         required: true
+ *         description: Indica la contrasena.
+ *         example: 1234
+ *         schema:
+ *           type: string  
+ *     responses:
+ *       200:
+ *         description: El token de autenticacion.
+ *         content:
+ *           application/json:
+ *             schema:
+ *                type: object
+ *                properties:
+ *                  token:
+ *                    type: string
+ *                    description: Token de autenticacion
+ *       404:
+ *         description: Login fallido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *                type: object
+ *                properties:
+ *                  message:
+ *                    type: string
+ *                    description: Mensaje de error
+ *                    example: No user found
+ *       500:
+ *         description: Error desconocido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *                type: object
+ *                properties:
+ *                  error:
+ *                    type: object
+ *                    description: Error generado.
+ * */
+router.post('/login',  cors(app.corsOptions), async function(req, res){
+    try{
+        let query = {username: req.body.username}
+        let user = await database.users.findOne(query);
+        if(user ){
 
-    const options = {
-        hostname: '168.62.39.210',
-        port: 8080,
-        path: '/auth/realms/Karaoke-Realm/protocol/openid-connect/token',
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            let data =  {
+                grant_type:"password",
+                client_id:"karaoke-client",
+                client_secret:"ba2939cf-e64c-4706-b578-349675e249b4",
+                username:req.body.username,
+                password:req.body.password
+            }
+            data=qs.stringify(data)
+
+            const options = {
+                hostname: '168.62.39.210',
+                port: 8080,
+                path: '/auth/realms/Karaoke-Realm/protocol/openid-connect/token',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            }
+
+            request(data,options,function(d){
+                res.status(200).jsonp({token:d.access_token, username: user.username, key: user.key, rol: user.rol})
+            })
+        }else{
+            res.status(404).jsonp({message:"No user found"});
         }
-    }
-
-    request(data,options,function(d){
-      if(d.access_token!== undefined){
-        res.status(200).jsonp({token:d.access_token})
-      }else{
-        res.status(401).jsonp({message:"Credentials not valid"});
-      }
-    })
   }
   catch(error){
-    res.status(500).jsonp({message:"Internal Server Error"});
+    res.status(500).jsonp({error});
   }
 });
 
@@ -166,13 +248,12 @@ function set_password(userid,password,token,callback){
 function request(data,options,callback){
  
   const reqs =  https.request(options,  rest => {
-  console.log(`statusCode: ${rest.statusCode}`)
   let s=""
   rest.on('data',  d => {
     s += String(d);
           process.stdout.write(d);
       })
-
+      
       rest.on('end', function () {
         try {
           s=JSON.parse(s.toString())
@@ -185,7 +266,6 @@ function request(data,options,callback){
 
   reqs.on('error', error => {
       s=error
-      console.error(error)
   })
   reqs.write(data)
   reqs.end()
@@ -193,28 +273,112 @@ function request(data,options,callback){
 }
 
 
-router.post('/', cors(corsOptions), async function(req, res, next) {
+ /**
+ * @swagger
+ * /users:
+ *   post:
+ *     tags: [Users]
+ *     summary: Endpoint para registrarse.
+ *     description: Endpoint para registrarse.
+ *     parameters:
+ *       - in: body
+ *         name: username
+ *         required: true
+ *         description: Indica el nombre de usuario.
+ *         schema:
+ *           type: string
+ *           example: user1
+ *       - in: body
+ *         name: password
+ *         required: true
+ *         description: Indica la contraseña.
+ *         schema:
+ *           type: string
+ *           example: 12345
+ *     responses:
+ *       201:
+ *         description: Mensaje de exito.
+ *         content:
+ *           application/json:
+ *             schema:
+ *                type: object
+ *                properties:
+ *                  message:
+ *                    type: string
+ *                    description: Mensaje de exito
+ *                    example: Successfully registered
+ *       409:
+ *         description: Error de usuario ya existente.
+ *         content:
+ *           application/json:
+ *             schema:
+ *                type: object
+ *                properties:
+ *                  message:
+ *                    type: string
+ *                    description: Mensaje de error
+ *                    example: The username is already in use
+ *       502:
+ *         description: Error externo.
+ *         content:
+ *           application/json:
+ *             schema:
+ *                type: object
+ *                properties:
+ *                  message:
+ *                    type: string
+ *                    description: Mensaje de error
+ *                    example: An error ocurred on the creation of the users storage space. The registration was unsuccessful
+ *       500:
+ *         description: Error desconocido.
+ *         content:
+ *           application/json:
+ *             schema:
+ *                type: object
+ *                properties:
+ *                  error:
+ *                    type: object
+ *                    description: Error generado.
+ * */
+
+router.post('/', cors(app.corsOptions), async function(req, res, next) {
     // Se obtienen los parametros de entrada
+    let username = req.body.username
+    let rol = req.body.rol
     try{
       // Se verifica si el usuario ya existe en la base de datos
+      let user = await database.users.findOne({username});  
 
-      // Se genera el usuario en keycloak
-      get_admin_token(function(token){
-        create_user(req.body.username,token,function(rest){
-            if(rest.errorMessage !== undefined){
-              res.status(409).jsonp({message:"The registration was unsuccessful. An user with the exact username aleady exists"});
-            }else{
+      if(user){
+        res.status(409).jsonp({message:"The username is already in use."});
+      }else if(!isUsernameValid(user)){
+        res.status(400).jsonp({message:"The username is not valid."});
+      }else{
+        
+        // Se genera el usuario en keycloak
+        get_admin_token(function(token){
+          create_user(req.body.username,token,function(rest){
               get_userid(req.body.username,token,function(userid){
                   set_rol(userid,req.body.rol,token,function(a){})
                   set_password(userid,req.body.password,token,function(b){
-                    res.status(201).jsonp({message:"Successfully registered."});
                   })
               })
-            }
+          })
         })
-      })
+        // Se agrega el usuario a la base de datos
+        let result = await database.users.insertOne({username, rol})
+        if(result.insertedId ){
+          res.status(201).jsonp({message:"Successfully registered."});
+        }else{
+          res.status(502).jsonp({message:"An error ocurred on the database. The registration was unsuccessful"});
+        }
+        // Se genera la carpeta del usuario en el storage
+        sendDatatoQueue("createContainer", username)
+      }
+  
     }catch(error){
-      res.status(500).jsonp({message:"An error ocurred. The registration was unsuccessful"});
+      console.log(error)
+      res.status(500).jsonp({error: "Internal Error"});
     }
     
   });
@@ -222,5 +386,5 @@ router.post('/', cors(corsOptions), async function(req, res, next) {
   module.exports = router;
   module.exports.request = request;
   
-  router.options('/login', cors(corsOptions)) // enable pre-flight request for DELETE request
-  router.options('/', cors(corsOptions)) // enable pre-flight request for DELETE request
+  router.options('/login', cors(app.corsOptions)) // enable pre-flight request for DELETE request
+  router.options('/', cors(app.corsOptions)) // enable pre-flight request for DELETE request
