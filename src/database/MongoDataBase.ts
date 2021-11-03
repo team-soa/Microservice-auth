@@ -29,6 +29,6 @@ export default class MongoDataBase implements IDataBase{
 
     async updateUser(user:User):Promise<void>{
       let filter = {username: user.username}
-      this.usersCollection.updateOne(filter, user)
+      this.usersCollection.updateOne(filter, {"$set":user})
     }
 }
