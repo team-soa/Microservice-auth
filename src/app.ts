@@ -21,6 +21,7 @@ import IStorageCreator from "./logic/IStorageCreator";
 import StorageCreator from "./logic/StorageCreator";
 import IMessageExecuter from "./messages/executers/IMessageExecuter";
 import UpdateUserKeyMessageExecuter from "./messages/executers/UpdateUserKeyMessageExecuter";
+import UserKeyMessageExecuter from "./messages/executers/UserKeyMessageExecuter";
 import IMessageReceiver from "./messages/listener/ImessageReceiver";
 import MessageReceiver from "./messages/listener/MessageReceiver";
 import IPreSender from "./messages/PreSender/IPreSender";
@@ -113,20 +114,24 @@ app.use(function(err, req, res, next) {
   
 const createFolderQueue = "createFolder"
 const updateUserKeyQueue = "updateUserKey"
+const requestUserKeyQueue = "requestUserKey"
 const rabbitHost = "amqp://localhost"
 const connectionString =  'mongodb+srv://client:HzKRkF8M52TTjidj@cluster0.uaqcj.mongodb.net/test'
 
 
 let messageReceiver: IMessageReceiver = new MessageReceiver(rabbitHost);
 let messageSender: IQueueSender = new RabbitSender(rabbitHost)
-let queuePreSender: IPreSender = new QueuePreSender(messageSender, createFolderQueue)
+let createFolderPreSender: IPreSender = new QueuePreSender(messageSender, createFolderQueue)
+let retrieveUserKey: IPreSender = new QueuePreSender(messageSender, createFolderQueue)
 let database: IDataBase = new MongoDataBase(connectionString)
 let httpService: IHttpService = new HttpService()
 let authenticator: IAuthenticator = new KeycloakAuthenticator(httpService)
-let storageCreator: IStorageCreator = new StorageCreator(queuePreSender)
+let storageCreator: IStorageCreator = new StorageCreator(createFolderPreSender)
 let authManager: IAuthManager = new AuthManager(database, authenticator, storageCreator)
-let messageExecuter:IMessageExecuter = new UpdateUserKeyMessageExecuter(database)
-messageReceiver.setListener(updateUserKeyQueue, messageExecuter)
+let updateUserKeyMessageExecuter:IMessageExecuter = new UpdateUserKeyMessageExecuter(database)
+let getUserKeyMessageExecuter: IMessageExecuter = new UserKeyMessageExecuter(retrieveUserKey, database)
+messageReceiver.setListener(updateUserKeyQueue, updateUserKeyMessageExecuter)
+messageReceiver.setListener(requestUserKeyQueue, getUserKeyMessageExecuter)
 
 
 export { app, corsOptions, authManager };
