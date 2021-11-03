@@ -1,3 +1,5 @@
+const keycloak = require('./config/keycloak.js').initKeycloak();
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -5,12 +7,29 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var swaggerJsdoc = require("swagger-jsdoc")
 var swaggerUi = require("swagger-ui-express");
-const keycloak = require('./config/keycloak.js').initKeycloak();
 var session = require('express-session');
+
+import { IAuthenticator } from "./auth/IAuthenticator";
+import KeycloakAuthenticator from "./auth/KeycloakAuthenticator";
+import IDataBase from "./database/IDataBase";
+import MongoDataBase from "./database/MongoDataBase";
+import HttpService from "./httpservices/HttpService";
+import IHttpService from "./httpservices/IHttpService";
+import MessageReceiver from "./listener/MessageReceiver";
+import { AuthManager } from "./logic/AuthManager";
+import IAuthManager from "./logic/IAuthManager";
+import IStorageCreator from "./logic/IStorageCreator";
+import StorageCreator from "./logic/StorageCreator";
+import IMessageExecuter from "./messages/executers/IMessageExecuter";
+import UpdateUserKeyMessageExecuter from "./messages/executers/UpdateUserKeyMessageExecuter";
+import IMessageReceiver from "./messages/listener/ImessageReceiver";
+import IPreSender from "./messages/PreSender/IPreSender";
+import QueuePreSender from "./messages/PreSender/QueuePresender";
+import IQueueSender from "./messages/senders/IQueueSender";
+import RabbitSender from "./messages/senders/RabbitSender";
 
 var usersRouter = require('./routes/users');
 
-var DataBaseInterface = require('./public/javascripts/DataBaseInterface');
 var corsOptions = {
   origin: ['http://localhost:4200/', 'http://168.62.39.210:3000/'],
   optionsSuccessStatus: 200
@@ -78,10 +97,10 @@ app.use('/users', usersRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     next(createError(404));
-  });
+});
   
   // error handler
-  app.use(function(err, req, res, next) {
+app.use(function(err, req, res, next) {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -89,10 +108,25 @@ app.use(function(req, res, next) {
     // render the error page
     res.status(err.status || 500);
     res.render('error');
-  });
+});
   
   
-  // Se conecta a la base de datos
-  DataBaseInterface.connect()
-  module.exports = app;
-  module.exports.corsOptions = corsOptions;
+const createFolderQueue = "createFolder"
+const updateUserKeyQueue = "updateUserKey"
+const rabbitHost = "amqp://localhost"
+const connectionString =  'mongodb+srv://client:HzKRkF8M52TTjidj@cluster0.uaqcj.mongodb.net/test'
+
+
+let messageReceiver: IMessageReceiver = new MessageReceiver(rabbitHost);
+let messageSender: IQueueSender = new RabbitSender(rabbitHost)
+let queuePreSender: IPreSender = new QueuePreSender(messageSender, createFolderQueue)
+let database: IDataBase = new MongoDataBase(connectionString)
+let httpService: IHttpService = new HttpService()
+let authenticator: IAuthenticator = new KeycloakAuthenticator(httpService)
+let storageCreator: IStorageCreator = new StorageCreator(queuePreSender)
+let authManager: IAuthManager = new AuthManager(database, authenticator, storageCreator)
+let messageExecuter:IMessageExecuter = new UpdateUserKeyMessageExecuter(database)
+messageReceiver.setListener(updateUserKeyQueue, messageExecuter)
+
+
+export { app, corsOptions, authManager };

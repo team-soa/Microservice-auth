@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "node dist/build/bin/www.js",
+    "build": "tsc",
     "dev": "nodemon server.js",
     "test": "mocha 'tests/apiTests.js' --exit --timeout 15000 "
   },
@@ -32,7 +33,9 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@types/qs": "^6.9.7",
     "nodemon": "^2.0.12",
-    "supertest": "^6.1.6"
+    "supertest": "^6.1.6",
+    "typescript": "^4.4.4"
   }
 }

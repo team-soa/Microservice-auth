@@ -1,10 +1,10 @@
 var express = require('express');
 var router = express.Router();
-var database = require('../public/javascripts/DataBaseInterface');
-var {sendDatatoQueue} = require('../public/javascripts/RabbitInterface')
-var {isUsernameValid} = require('../public/javascripts/UsernameValidator')
+var database = require('./public/javascripts/DataBaseInterface');
+var {sendDatatoQueue} = require('./public/javascripts/RabbitInterface')
+var {isUsernameValid} = require('./public/javascripts/UsernameValidator')
 var cors = require('cors')
-var app = require('../app');
+var app = require('../../app');
 const keycloak = require('../config/keycloak.js').getKeycloak();
 
 
@@ -373,7 +373,7 @@ router.post('/', cors(app.corsOptions), async function(req, res, next) {
           res.status(502).jsonp({message:"An error ocurred on the database. The registration was unsuccessful"});
         }
         // Se genera la carpeta del usuario en el storage
-        sendDatatoQueue("createContainer", username)
+        sendDatatoQueue("createFolder", JSON.stringify({"folder":username}))
       }
   
     }catch(error){
