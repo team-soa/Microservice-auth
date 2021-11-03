@@ -113,6 +113,7 @@ app.use(function(err, req, res, next) {
   
   
 const createFolderQueue = "createFolder"
+const updateUserKeyResponseQueue = 'updateSongKey'
 const updateUserKeyQueue = "updateUserKey"
 const requestUserKeyQueue = "requestUserKey"
 const rabbitHost = "amqp://localhost"
@@ -122,7 +123,7 @@ const connectionString =  'mongodb+srv://client:HzKRkF8M52TTjidj@cluster0.uaqcj.
 let messageReceiver: IMessageReceiver = new MessageReceiver(rabbitHost);
 let messageSender: IQueueSender = new RabbitSender(rabbitHost)
 let createFolderPreSender: IPreSender = new QueuePreSender(messageSender, createFolderQueue)
-let retrieveUserKey: IPreSender = new QueuePreSender(messageSender, createFolderQueue)
+let retrieveUserKey: IPreSender = new QueuePreSender(messageSender, updateUserKeyResponseQueue)
 let database: IDataBase = new MongoDataBase(connectionString)
 let httpService: IHttpService = new HttpService()
 let authenticator: IAuthenticator = new KeycloakAuthenticator(httpService)
