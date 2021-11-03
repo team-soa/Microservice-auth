@@ -8,14 +8,14 @@ export default class KeycloakAuthenticator implements IAuthenticator{
     this.httpService = httpService
   }
   get_admin_token (callback: (token:string)=>void){
-    let data =  {
+    let data1 =  {
         grant_type:"password",
         client_id:"karaoke-client",
         client_secret:"ba2939cf-e64c-4706-b578-349675e249b4",
         username:"creator",
         password:"creator1"
       }
-    data=qs.stringify(data)
+    let data=qs.stringify(data1)
       
     const options = {
     hostname: '168.62.39.210',
@@ -70,7 +70,7 @@ export default class KeycloakAuthenticator implements IAuthenticator{
   }
       
   set_rol(userid:string,rol:string,token:string,callback:(d:any)=>void){
-    let data = []
+    let data:{}[] = []
     if (rol =="user") {
         data =  [{
             id:"ee18091d-08be-484e-b7d5-220f4b0a39ed", name:"user_role"
@@ -119,14 +119,14 @@ export default class KeycloakAuthenticator implements IAuthenticator{
   }
   
   async obtain_token(username:any, password:any):Promise<string>{
-    let data =  {
+    let data1 =  {
       grant_type:"password",
       client_id:"karaoke-client",
       client_secret:"ba2939cf-e64c-4706-b578-349675e249b4",
       username,
       password
     }
-    data=qs.stringify(data)
+    let data=qs.stringify(data1)
     const options = {
       hostname: '168.62.39.210',
       port: 8080,
@@ -141,14 +141,15 @@ export default class KeycloakAuthenticator implements IAuthenticator{
   }
 
   register(username:string, rol: string, password: string): void{
-      this.get_admin_token(function(token){
-        this.create_user(username,token,function(rest){
-            this.get_userid(username,token,function(userid){
-                this.set_rol(userid,rol,token,function(a){})
-                this.set_password(userid,password,token,function(b){
-                })
-            })
-        })
+    let current = this
+    current.get_admin_token(function(token){
+      current.create_user(username,token,function(rest:any){
+        current.get_userid(username,token,function(userid:any){
+          current.set_rol(userid,rol,token,function(a:any){})
+            current.set_password(userid,password,token,function(b:any){
+              })
+          })
+      })
     })
   }
 }

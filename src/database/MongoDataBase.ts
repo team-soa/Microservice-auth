@@ -4,7 +4,7 @@ import IDataBase from "./IDataBase"
 const MongoClient = require('mongodb').MongoClient
 
 export default class MongoDataBase implements IDataBase{
-    usersCollection = null
+    usersCollection:any
     constructor(connectionString:string){
         MongoClient.connect(connectionString, { useUnifiedTopology: true })
         .then((client:any) => {

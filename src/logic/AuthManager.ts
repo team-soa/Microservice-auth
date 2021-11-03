@@ -16,7 +16,7 @@ export class AuthManager implements IAuthManager{
         this.storageCreator = storageCreator
     }
 
-    async login(username:string, password: string): Promise<User>{
+    async login(username:string, password: string): Promise<User|undefined>{
         let user  = await this.dataBase.getUser(username)
         if(user){
             let token = await this.authenticator.obtain_token(username, password)
