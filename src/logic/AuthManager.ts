@@ -20,8 +20,12 @@ export class AuthManager implements IAuthManager{
         let user  = await this.dataBase.getUser(username)
         if(user){
             let token = await this.authenticator.obtain_token(username, password)
-            user.token = token
-            return user
+            if (token){
+                user.token = token
+                return user
+            }else{
+                return undefined
+            }
         }{
             return undefined
         }

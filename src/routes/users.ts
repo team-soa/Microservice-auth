@@ -3,7 +3,7 @@ var router = express.Router();
 var cors = require('cors')
 const keycloak = require('../config/keycloak.js').getKeycloak();
 
-import {app, authManager} from '../app'
+import {app, authManager, corsOptions} from '../app'
 import { RegistrationResultEnum } from '../logic/RegistrationResultEnum';
 /**
  * @swagger
@@ -83,13 +83,13 @@ const https = require('http');
  *                    type: object
  *                    description: Error generado.
  * */
-router.post('/login',  cors(app.corsOptions), async function(req:any, res:any){
+router.post('/login',  cors(corsOptions), async function(req:any, res:any){
     try{
         let user = await authManager.login(req.body.username, req.body.password)
         if(user){
           res.status(200).jsonp(user)
         }else{
-          res.status(404).jsonp({message:"No user found"});
+          res.status(401).jsonp({message:"Invalid Credentials"});
         }                
   }catch(error){
     res.status(500).jsonp({message:"Internal Server Error"});
@@ -164,7 +164,7 @@ router.post('/login',  cors(app.corsOptions), async function(req:any, res:any){
  *                    description: Error generado.
  * */
 
-router.post('/register', cors(app.corsOptions), async function(req:any, res:any, next:any) {
+router.post('/register', cors(corsOptions), async function(req:any, res:any, next:any) {
   // Se obtienen los parametros de entrada
   let username = req.body.username
   let rol = req.body.rol
@@ -193,5 +193,5 @@ router.post('/register', cors(app.corsOptions), async function(req:any, res:any,
 
 module.exports = router;
   
-router.options('/login', cors(app.corsOptions)) // enable pre-flight request for DELETE request
-router.options('/', cors(app.corsOptions)) // enable pre-flight request for DELETE request
+router.options('/login', cors(corsOptions)) // enable pre-flight request for DELETE request
+router.options('/', cors(corsOptions)) // enable pre-flight request for DELETE request
