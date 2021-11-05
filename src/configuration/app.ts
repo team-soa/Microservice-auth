@@ -116,7 +116,7 @@ const createFolderQueue = "createFolder"
 const updateUserKeyResponseQueue = 'updateSongKey'
 const updateUserKeyQueue = "updateUserKey"
 const requestUserKeyQueue = "requestUserKey"
-const rabbitHost = "amqp://localhost"
+const rabbitHost = "amqp://"+process.env.rabbit_url
 const connectionString =  'mongodb+srv://client:HzKRkF8M52TTjidj@cluster0.uaqcj.mongodb.net/test'
 
 
