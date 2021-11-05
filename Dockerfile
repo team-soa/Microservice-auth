@@ -1,10 +1,11 @@
 FROM node:14-alpine
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 WORKDIR /usr/src/app
-COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
-RUN npm install --production --silent && mv node_modules ../
+COPY ["package.json", "tsconfig.json","package-lock.json*", "npm-shrinkwrap.json*", "./"]
+RUN npm install
 COPY . .
 EXPOSE 4000
 RUN chown -R node /usr/src/app
 USER node
+RUN npm run build
 CMD ["npm", "start"]

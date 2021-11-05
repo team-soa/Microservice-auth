@@ -22,12 +22,12 @@ import StorageCreator from "../domainServices/storageCreators/StorageCreator";
 import IMessageExecuter from "../domainServices/executers/IMessageExecuter";
 import UpdateUserKeyMessageExecuter from "../domainServices/executers/UpdateUserKeyMessageExecuter";
 import UserKeyMessageExecuter from "../domainServices/executers/UserKeyMessageExecuter";
-import IMessageReceiver from "../applicationServices/messages/listener/ImessageReceiver";
 import MessageReceiver from "../applicationServices/messages/listener/MessageReceiver";
 import IPreSender from "../applicationServices/messages/PreSender/IPreSender";
-import QueuePreSender from "../applicationServices/messages/PreSender/QueuePresender";
 import IQueueSender from "../applicationServices/messages/senders/IQueueSender";
 import RabbitSender from "../applicationServices/messages/senders/RabbitSender";
+import IMessageReceiver from "../applicationServices/messages/listener/IMessageReceiver";
+import QueuePreSender from "../applicationServices/messages/PreSender/QueuePreSender";
 
 var usersRouter = require('../applicationServices/routes/users');
 
