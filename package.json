@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node dist/build/bin/www.js",
+    "start": "node dist/build/configuration/bin/www.js",
     "build": "tsc",
     "dev": "nodemon server.js",
     "test": "mocha 'tests/apiTests.js' --exit --timeout 15000 "

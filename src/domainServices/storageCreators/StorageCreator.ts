@@ -1,5 +1,5 @@
-import IPreSender from "../messages/PreSender/IPreSender"
-import StorageCreationMessage from "../models/StorageCreationMessage"
+import IPreSender from "../../applicationServices/messages/PreSender/IPreSender"
+import StorageCreationMessage from "../executers/models/StorageCreationMessage"
 import IStorageCreator from "./IStorageCreator"
 
 export default class StorageCreator implements IStorageCreator{

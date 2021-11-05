@@ -1,8 +1,8 @@
-import { IAuthenticator } from "../auth/IAuthenticator";
-import IDataBase from "../database/IDataBase";
-import User from "../models/User";
+import { IAuthenticator } from "../../applicationServices/auth/IAuthenticator";
+import IDataBase from "../../applicationServices/database/IDataBase";
+import User from "../../domainModel/User";
 import IAuthManager from "./IAuthManager";
-import IStorageCreator from "./IStorageCreator";
+import IStorageCreator from "../storageCreators/IStorageCreator";
 import { RegistrationResultEnum } from "./RegistrationResultEnum";
 
 export class AuthManager implements IAuthManager{

@@ -1,5 +1,5 @@
-import IDataBase from "../../database/IDataBase";
-import User from "../../models/User";
+import IDataBase from "../../applicationServices/database/IDataBase";
+import User from "../../domainModel/User";
 import IMessageExecuter from "./IMessageExecuter";
 
 export default class UpdateUserKeyMessageExecuter implements IMessageExecuter{

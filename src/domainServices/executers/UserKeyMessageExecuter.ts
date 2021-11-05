@@ -1,7 +1,7 @@
-import IDataBase from "../../database/IDataBase";
-import UserKeyRequest from "../../models/UserKeyRequest";
-import UserKeyRequestResponse from "../../models/UserKeyRequestResponse";
-import IPreSender from "../PreSender/IPreSender";
+import IDataBase from "../../applicationServices/database/IDataBase";
+import UserKeyRequest from "./models/UserKeyRequest";
+import UserKeyRequestResponse from "./models/UserKeyRequestResponse";
+import IPreSender from "../../applicationServices/messages/PreSender/IPreSender";
 import IMessageExecuter from "./IMessageExecuter";
 
 export default class UserKeyMessageExecuter implements IMessageExecuter{

@@ -1,4 +1,4 @@
-import User from "../models/User";
+import User from "../../domainModel/User";
 
 export default interface IDataBase{
     insertUser(user:User):Promise<boolean>

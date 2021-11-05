@@ -1,4 +1,4 @@
-import User from "../models/User";
+import User from "../../domainModel/User";
 import { RegistrationResultEnum } from "./RegistrationResultEnum";
 
 export default interface IAuthManager{

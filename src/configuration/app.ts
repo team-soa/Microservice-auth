@@ -1,4 +1,4 @@
-const keycloak = require('./config/keycloak.js').initKeycloak();
+const keycloak = require('../applicationServices/config/keycloak').initKeycloak();
 
 var createError = require('http-errors');
 var express = require('express');
@@ -9,27 +9,27 @@ var swaggerJsdoc = require("swagger-jsdoc")
 var swaggerUi = require("swagger-ui-express");
 var session = require('express-session');
 
-import { IAuthenticator } from "./auth/IAuthenticator";
-import KeycloakAuthenticator from "./auth/KeycloakAuthenticator";
-import IDataBase from "./database/IDataBase";
-import MongoDataBase from "./database/MongoDataBase";
-import HttpService from "./httpservices/HttpService";
-import IHttpService from "./httpservices/IHttpService";
-import { AuthManager } from "./logic/AuthManager";
-import IAuthManager from "./logic/IAuthManager";
-import IStorageCreator from "./logic/IStorageCreator";
-import StorageCreator from "./logic/StorageCreator";
-import IMessageExecuter from "./messages/executers/IMessageExecuter";
-import UpdateUserKeyMessageExecuter from "./messages/executers/UpdateUserKeyMessageExecuter";
-import UserKeyMessageExecuter from "./messages/executers/UserKeyMessageExecuter";
-import IMessageReceiver from "./messages/listener/ImessageReceiver";
-import MessageReceiver from "./messages/listener/MessageReceiver";
-import IPreSender from "./messages/PreSender/IPreSender";
-import QueuePreSender from "./messages/PreSender/QueuePresender";
-import IQueueSender from "./messages/senders/IQueueSender";
-import RabbitSender from "./messages/senders/RabbitSender";
+import { IAuthenticator } from "../applicationServices/auth/IAuthenticator";
+import KeycloakAuthenticator from "../applicationServices/auth/KeycloakAuthenticator";
+import IDataBase from "../applicationServices/database/IDataBase";
+import MongoDataBase from "../applicationServices/database/MongoDataBase";
+import HttpService from "../applicationServices/httpservices/HttpService";
+import IHttpService from "../applicationServices/httpservices/IHttpService";
+import { AuthManager } from "../domainServices/authManagers/AuthManager";
+import IAuthManager from "../domainServices/authManagers/IAuthManager";
+import IStorageCreator from "../domainServices/storageCreators/IStorageCreator";
+import StorageCreator from "../domainServices/storageCreators/StorageCreator";
+import IMessageExecuter from "../domainServices/executers/IMessageExecuter";
+import UpdateUserKeyMessageExecuter from "../domainServices/executers/UpdateUserKeyMessageExecuter";
+import UserKeyMessageExecuter from "../domainServices/executers/UserKeyMessageExecuter";
+import IMessageReceiver from "../applicationServices/messages/listener/ImessageReceiver";
+import MessageReceiver from "../applicationServices/messages/listener/MessageReceiver";
+import IPreSender from "../applicationServices/messages/PreSender/IPreSender";
+import QueuePreSender from "../applicationServices/messages/PreSender/QueuePresender";
+import IQueueSender from "../applicationServices/messages/senders/IQueueSender";
+import RabbitSender from "../applicationServices/messages/senders/RabbitSender";
 
-var usersRouter = require('./routes/users');
+var usersRouter = require('../applicationServices/routes/users');
 
 var corsOptions = {
   origin: ['http://localhost:4200/', 'http://168.62.39.210:3000/'],

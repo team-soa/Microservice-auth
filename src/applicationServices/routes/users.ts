@@ -3,8 +3,8 @@ var router = express.Router();
 var cors = require('cors')
 const keycloak = require('../config/keycloak.js').getKeycloak();
 
-import {app, authManager, corsOptions} from '../app'
-import { RegistrationResultEnum } from '../logic/RegistrationResultEnum';
+import {app, authManager, corsOptions} from '../../configuration/app'
+import { RegistrationResultEnum } from '../../domainServices/authManagers/RegistrationResultEnum';
 /**
  * @swagger
  *    components:

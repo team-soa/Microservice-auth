@@ -1,4 +1,4 @@
-import User from "../models/User"
+import User from "../../domainModel/User"
 import IDataBase from "./IDataBase"
 
 const MongoClient = require('mongodb').MongoClient
