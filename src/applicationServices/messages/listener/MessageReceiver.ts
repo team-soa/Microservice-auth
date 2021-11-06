@@ -21,9 +21,13 @@ export default class MessageReceiver implements IMessageReceiver{
                     durable: false
                 });
                 console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", queue);
-                channel.consume(queue, function(msg:any) {
+                channel.consume(queue, async function(msg:any) {
                     console.log(" [x] Received %s", msg.content.toString());
-                    executer.executeMessage(msg.content.toString())
+                    try{
+                        await executer.executeMessage(msg.content.toString())
+                    }catch(e){
+                        console.log(e)
+                    }
                 }, {
                     noAck: true
                 });

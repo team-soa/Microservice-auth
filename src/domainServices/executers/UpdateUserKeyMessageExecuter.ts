@@ -10,7 +10,7 @@ export default class UpdateUserKeyMessageExecuter implements IMessageExecuter{
     async executeMessage(message: string): Promise<void> {
         try{
             let newUserData: User = JSON.parse(message)
-            this.dataBase.updateUser(newUserData)
+            await this.dataBase.updateUser(newUserData)
         }catch(e:any){
             console.log(e)
         }

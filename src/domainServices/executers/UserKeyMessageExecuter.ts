@@ -11,7 +11,7 @@ export default class UserKeyMessageExecuter implements IMessageExecuter{
         this.preSender = preSender
         this.dataBase = dataBase
     }
-    async executeMessage(message: string) {
+    async executeMessage(message: string):Promise<void> {
         let request: UserKeyRequest = JSON.parse(message)
         let user = await this.dataBase.getUser(request.user!)
         user.key

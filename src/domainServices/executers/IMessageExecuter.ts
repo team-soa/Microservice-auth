@@ -1,3 +1,3 @@
 export default interface IMessageExecuter{
-    executeMessage(message: string): void
+    executeMessage(message: string): Promise<void>
 }
