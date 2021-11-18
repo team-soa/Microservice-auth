@@ -32,7 +32,7 @@ import QueuePreSender from "../applicationServices/messages/PreSender/QueuePreSe
 var usersRouter = require('../applicationServices/routes/users');
 
 var corsOptions = {
-  origin: ['http://localhost:4200/', 'http://168.62.39.210:3000/'],
+  origin: ['*'],
   optionsSuccessStatus: 200
 }
 
