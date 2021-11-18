@@ -194,4 +194,5 @@ router.post('/register', cors(corsOptions), async function(req:any, res:any, nex
 module.exports = router;
   
 router.options('/login', cors(corsOptions)) // enable pre-flight request for DELETE request
+router.options('/register', cors(corsOptions)) // enable pre-flight request for DELETE request
 router.options('/', cors(corsOptions)) // enable pre-flight request for DELETE request
