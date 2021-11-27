@@ -11,10 +11,12 @@ export default class MessageReceiver implements IMessageReceiver{
     setListener(queue: string, executer: IMessageExecuter): void {
         amqp.connect(this.host, function(error0:any, connection:any) {
             if (error0) {
+                console.log(error0)
                 throw error0;
             }
             connection.createChannel(function(error1:any, channel:any) {
                 if (error1) {
+                    console.log(error1)
                     throw error1;
                 }
                 channel.assertQueue(queue, {
